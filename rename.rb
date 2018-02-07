@@ -30,18 +30,20 @@ if snake == camel
 end
 
 old_dirs = []
-Find.find('.') do |path|
+Find.find(File.dirname(__FILE__)) do |path|
   next unless File.file?(path)
   next if path =~ /\.git/
   next if path == './rename.rb'
 
   # Change content on all files
-  system(%(sed 's/dns_plugin_template/#{snake}/g' -i #{path} ))
-  system(%(sed 's/DnsPluginTemplate/#{camel}/g'   -i #{path} ))
-  system(%(sed 's/PluginTemplate/#{camel.sub(/\ADns/, '')}/g'   -i #{path} ))
+  buffer = File.read(path)
+  buffer.gsub!(/dns_plugin_template/, snake)
+  buffer.gsub!(/DnsPluginTemplate/, camel)
+  buffer.gsub!(/PluginTemplate/, camel.sub(/\ADns/, '') )
+  File.open(path, "w") {|file| file.puts buffer }
 end
 
-Find.find('.') do |path|
+Find.find(File.dirname(__FILE__)) do |path|
   # Change all the paths to the new snake_case name
   if path =~ /dns_plugin_template/i
     new = path.gsub('dns_plugin_template', snake)
